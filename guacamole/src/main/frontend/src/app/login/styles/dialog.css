@@ -34,7 +34,7 @@
 
     width: 100%;
     max-width: 3in;
-    text-align: left;
+    text-align: -webkit-center;
     padding: 1em;
     font-size: 1.25em;
 
