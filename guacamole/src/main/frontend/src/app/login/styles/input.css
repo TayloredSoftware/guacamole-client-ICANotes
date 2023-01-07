@@ -33,7 +33,7 @@
 }
 
 .login-ui .login-dialog .buttons input[type="submit"] {
-    width: 100%;
+    width: 50%;
     margin: 0;
 }
 
