@@ -20,11 +20,11 @@
 div.login-ui {
     height: 100%;
     width: 100%;
-    position: absolute;
+    position: top;
     left: 0;
     top: 0;
     display: table;
-    background: white;
+    background: gray;
     z-index: 20;
 }
 
