@@ -24,7 +24,7 @@ div.login-ui {
     left: 0;
     top: 0;
     display: table;
-    background: gray;
+    background: white;
     z-index: 20;
 }
 
@@ -43,7 +43,7 @@ div.login-ui {
     padding: 1em;
     margin: 0.2em;
 
-    background: #FDD;
+    background: #aaa;
     border: 1px solid #964040;
     -moz-border-radius: 0.25em;
     -webkit-border-radius: 0.25em;
