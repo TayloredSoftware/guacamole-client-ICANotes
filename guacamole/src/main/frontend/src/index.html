@@ -37,7 +37,7 @@
         <!-- Extension CSS (must be able to override webapp CSS) -->
         <link rel="stylesheet" type="text/css" href="app.css?b=${guacamole.build.identifier}">
 
-        <title ng-bind="page.title | translate"></title>
+        <title ng-bind="page.title | translate" class="ng-binding">ICANotes</title>
     </head>
     <body ng-cloak translate-cloak ng-class="page.bodyClassName" ng-switch="applicationState">
 
