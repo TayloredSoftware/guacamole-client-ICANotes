@@ -445,6 +445,34 @@
 
         <!-- Automatically build distribution archive if dist.xml assembly is present -->
         <profile>
+    <id>build-war-file</id>
+    <activation>
+        <file><exists>src/main/webapp</exists></file>
+    </activation>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</profile>
+        
+        
+        <profile>
             <id>build-dist-archive</id>
             <activation>
                 <file><exists>src/main/assembly/dist.xml</exists></file>
