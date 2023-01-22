@@ -97,11 +97,11 @@
 .login-ui .login-dialog .logo {
     display: block;
     margin: 0.5em auto;
-    width: 3em;
-    height: 3em;
+    width: 9em;
+    height: 9em;
     background-size:         3em 3em;
     -moz-background-size:    3em 3em;
-    -webkit-background-size: 3em 3em;
+    -webkit-background-size: 9em 9em;
     -khtml-background-size:  3em 3em;
     background-image: url("https://www.icanotes.com/wp-content/uploads/2017/09/ICANotes_logo250w.png");
 }
