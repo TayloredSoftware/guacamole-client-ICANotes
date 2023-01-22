@@ -24,7 +24,7 @@ div.login-ui {
     left: 0;
     top: 0;
     display: table;
-    background: white;
+    background: gray;
     z-index: 20;
 }
 
