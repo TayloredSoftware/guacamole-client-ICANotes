@@ -70,81 +70,7 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
 			page_configuration["applications_portal"] = "";	  // Display Application Portal after logon ("your_page_applications.html" to display the application portal, "" to start remote connection directly after logon)
 			page_configuration["show_windows_password_reset_button"] = false;	  // Display the windows password reset button
 			// --------------- End of Page Configuration ---------------
-
-			// --------------- Access Configuration ---------------
-			var user = "";                              // Login to use when connecting to the remote server (leave "" to use the login typed in this page)
-			var pass = "";                              // Password to use when connecting to the remote server (leave "" to use the password typed in this page)
-			var domain = "internet";                            // Domain to use when connecting to the remote server (leave "" to use the domain typed in this page)
-			var server = "127.0.0.1";                            // Server to connect to (leave "" to use localhost and/or the server chosen in this page)
-			var port = "";                              // Port to connect to (leave "" to use localhost and/or the port of the server chosen in this page)
-			var lang = "as_browser";                    // Language to use
-			var serverhtml5 = "127.0.0.1";              // Server to connect to, when using HTML5 client
-			var porthtml5 = "3389";
-			var cmdline = "";                           // Optional text that will be put in the server's clipboard once connected
-			// --------------- End of Access Configuration ---------------
-
-			// --------------- Seamless Access Configuration ---------------
-			var alloutside = "dummyvaro=false; ";
-			alloutside += "switcher=7; ";               // Resolution to use (if your server supports RemoteApp, leave 7. Otherwise, use one of the following values: 0 = full window, 1 = full screen, 2 = 640x480, 3 = 800x600, 4 = 1024x768, 5 = 1280x1024, 6 = 1600x1200)
-			alloutside += "bpp_all=32; ";               // Pixel Depth to use for Windows clients (use one of the following values: 15 for 15 bits display, 16 for 16 bits, 24 for 24 bits, 32 for 32 bits)
-			alloutside += "bpp_all_mac='4'; ";          // Pixel Depth to use for MAC clients (use one of the following values: 1 for 15 bits display, 2 for 16 bits, 3 for 24 bits, 4 for 32 bits)
-			alloutside += "cmdline='"+cmdline+"'; ";
-			//alloutside += "server=''; ";                  // Server (leave empty '' for auto recognition)
-			//alloutside += "username=''; ";                // Autologon User Login (leave empty '' if you don't want to use Autologon)
-			//alloutside += "rdppass=''; ";                 // Autologon User Password (leave empty '' if you don't want to use Autologon)
-			//alloutside += "mydomain=''; "                 // Domain (leave empty '' if you don't have an Active Directory domain)
-			alloutside += "interval_print_option='11'; ";	// Web Printing Options
-			// --------------- End of Seamless Access Configuration ---------------
-
-			// --------------- Java Access Configuration ---------------
-			var allinside = "dummyvari=false; ";
-			allinside += "switcher=0; ";                // Resolution to use (use one of the following values: 0 = full window, 1 = full screen, 2 = 640x480, 3 = 800x600, 4 = 1024x768, 5 = 1280x1024, 6 = 1600x1200)
-			allinside += "bpp_all=15; ";                // Pixel Depth to use (use one of the following values: 15 for 15 bits display, 16 for 16 bits, 24 for 24 bits)
-			allinside += "cmdline='"+cmdline+"'; ";
-			//allinside += "server=''; ";                   // Server (leave empty '' for auto recognition)
-			//allinside += "username=''; ";                 // Autologon User Login (leave empty '' if you don't want to use Autologon)
-			//allinside += "rdppass=''; ";                  // Autologon User Password (leave empty '' if you don't want to use Autologon)
-			//allinside += "mydomain=''; "                  // Domain (leave empty '' if you don't have an Active Directory domain)
-			allinside += "sameasweb = 'yes'; ";         // Port to use for the RDP connection ('yes' if you want to use the same port as this page's web server address, 'no' otherwise
-			allinside += "insidecheck = true; ";        // Start the Java Client inside the browser (true to start it inside the browser, false to start it externally)
-			allinside += "soundsup = true; ";           // Sound Support (true to activate it, false otherwise)
-			allinside += "mapsup = true; ";             // Local Disk Mapping (true to activate it, false otherwise)
-			allinside += "activex = false; ";           // ActiveX instead of Java in Internet Explorer browsers (true if you want to use ActiveX client instead of the Java client, false otherwise)
-			allinside += "interval_print_option='11'; ";		// Web Printing Options
-			// --------------- End of Java Access Configuration ---------------
-			// --------------- PWA Configuration ---------------
-			var isPWAEnabled = "yes";
-			var edgeVersion = navigator.userAgent.match(/(Edge|Edg)\/(\d+)/i);
-			var isOldEdge = edgeVersion !== null && edgeVersion[2] < 80;
-			var isIE = typeof window.document.documentMode !== "undefined";
-			var isFirefox = navigator.userAgent.indexOf("Firefox") > -1;
-			var isPWASupported = !(isOldEdge || isIE || isFirefox);
-
-			// Delete previous service worker cache
-			caches.delete('site-dynamic-v1');
-
-			if(isPWAEnabled != "no" && isPWASupported && 'serviceWorker' in navigator){
-			var link = document.createElement('link');
-			link.rel = 'manifest';
-			link.href = 'manifest.json';
-			document.head.append(link);
-			navigator.serviceWorker.register('./sw.js')
-			  .then(function(reg) {console.log('Service Worker registered')})
-			  .catch(function(err) {console.log('Service Worker not registered', err)});
-			}
-			else {
-			if('serviceWorker' in navigator) {
-				navigator.serviceWorker.getRegistration('./sw.js').then(function(reg) {
-					if(reg !== undefined) {
-						console.log('Unregistering Service Worker');
-						reg.unregister();
-					}
-				}).catch(function(err) {
-					console.log('Service Worker unregistration failed: ', err);
-				});
-			}
-			}
-			// --------------- End of PWA Configuration ---------------
+		
 		</script><link rel="manifest" href="manifest.json">
 		<!--[if IE]><script type="text/javascript">window.iecondition = true;</script><![endif]-->
 		<script type="text/javascript" src="software/lang.js"></script>
@@ -160,7 +86,7 @@ body[unresolved] {opacity: 0; display: block; overflow: hidden; position: relati
 			padding:0;
 			font-size: 12px;
 			color: #FFFFFF;
-			background-color:white;
+			background-color:gray;
 			background-size: cover;
 			font-family: Verdana;
 			height: 100%;
