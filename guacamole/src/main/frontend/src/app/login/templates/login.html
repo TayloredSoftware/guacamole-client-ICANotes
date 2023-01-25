@@ -5,19 +5,18 @@
        translate-values="{{loginError.variables}}"></p>
 
     <div class="login-dialog-middle">
-
+	<div class="cookie-banner" style="">
+		<p class="cookie-text">
+			<a>Need help? Our Support staff are available to assist you 24/7! Chat Support at the bottom right or Phone Support at (866) 847-3590.</a>
+			<button id="closeButton" class="close" style="float: right;">X</button>
+		</p>		
+	</div>
+	<div class="logo"></div>
         <div class="login-dialog notification">
-		<div class="cookie-banner" style="">
-					<p class="cookie-text">
-						<a>Need help? Our Support staff are available to assist you 24/7! Chat Support at the bottom right or Phone Support at (866) 847-3590.</a>
-						<button id="closeButton" class="close" style="float: right;">X</button>
-					</p>		
-				</div>
 
             <form class="login-form" ng-submit="login()">
 
                 <!-- Guacamole version -->
-                <div class="logo"></div>
                 <div class="version">
                 </div>
 
