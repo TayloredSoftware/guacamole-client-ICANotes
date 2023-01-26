@@ -79,6 +79,7 @@ div.login-ui {
 
 .login-ui .login-fields .labeled-field.empty input {
     background: transparent;
+    background-color: white;
 }
 
 .login-ui .login-fields .labeled-field input:focus {
