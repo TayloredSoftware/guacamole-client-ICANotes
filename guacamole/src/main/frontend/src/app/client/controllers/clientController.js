@@ -791,7 +791,7 @@ angular.module('client').controller('clientController', ['$scope', '$routeParams
             ManagedClient.uploadFile($scope.filesystemMenuContents.client, files[i], $scope.filesystemMenuContents);
 
     };
-
+    
     /**
      * Determines whether the attached client group has any associated file
      * transfers, regardless of those file transfers' state.
