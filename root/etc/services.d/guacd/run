@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+echo "Starting guacamole guacd..."
+s6-setuidgid root guacd -f -b 127.0.0.1
