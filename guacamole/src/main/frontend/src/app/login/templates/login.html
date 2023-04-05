@@ -6,11 +6,17 @@
 
     <div class="login-dialog-middle">
 	<div class="cookie-banner" style="">
-		<p class="cookie-text">
-			<a>Need help? Our Support staff are available to assist you 24/7! Chat Support at the bottom right or Phone Support at (866) 847-3590.</a>
-			<button id="closeButton" class="close" style="float: right;">X</button>
-		</p>		
-	</div>
+	<p class="cookie-text">
+		<a>Need help? Our Support staff are available to assist you 24/7! Chat Support at the bottom right or Phone Support at (866) 847-3590.</a>
+		<button id="closeButton" class="close" style="float: right;">X</button>
+	</p>		
+</div>
+
+<script>
+	document.getElementById('closeButton').addEventListener('click', function() {
+		document.querySelector('.cookie-banner').style.display = 'none';
+	});
+</script>
 	<div class="logo" style="margin-left: auto;margin-right: auto;width: 50%;">
 		<img alt="ICANotes" src="https://www.icanotes.com/wp-content/uploads/2017/09/ICANotes_logo250w.png">
 	</div>
