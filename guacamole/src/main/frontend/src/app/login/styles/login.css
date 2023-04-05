@@ -44,12 +44,12 @@ div.login-ui {
     margin: 0.2em;
 
     background: ##777d8c;
-    border: 1px solid #964040;
+    border: 1px solid #ffffff;
     -moz-border-radius: 0.25em;
     -webkit-border-radius: 0.25em;
     -khtml-border-radius: 0.25em;
     text-align: center;
-    color: #964040;
+    color: #ffffff;
 }
 
 .login-ui .login-fields .form-field .password-field .toggle-password {
