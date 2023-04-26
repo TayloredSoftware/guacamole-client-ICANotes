@@ -19,10 +19,15 @@
 
 package org.apache.guacamole.rest.directory;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -37,6 +42,9 @@ import org.apache.guacamole.GuacamoleClientException;
 import org.apache.guacamole.GuacamoleException;
 import org.apache.guacamole.GuacamoleResourceNotFoundException;
 import org.apache.guacamole.GuacamoleUnsupportedException;
+import org.apache.guacamole.language.Translatable;
+import org.apache.guacamole.language.TranslatableMessage;
+import org.apache.guacamole.net.auth.AtomicDirectoryOperation;
 import org.apache.guacamole.net.auth.AuthenticatedUser;
 import org.apache.guacamole.net.auth.AuthenticationProvider;
 import org.apache.guacamole.net.auth.Directory;
@@ -50,8 +58,13 @@ import org.apache.guacamole.net.auth.permission.SystemPermissionSet;
 import org.apache.guacamole.net.event.DirectoryEvent;
 import org.apache.guacamole.net.event.DirectoryFailureEvent;
 import org.apache.guacamole.net.event.DirectorySuccessEvent;
-import org.apache.guacamole.rest.APIPatch;
+import org.apache.guacamole.rest.APIError;
 import org.apache.guacamole.rest.event.ListenerService;
+import org.apache.guacamole.rest.jsonpatch.APIPatch;
+import org.apache.guacamole.rest.jsonpatch.APIPatchError;
+import org.apache.guacamole.rest.jsonpatch.APIPatchFailureException;
+import org.apache.guacamole.rest.jsonpatch.APIPatchOutcome;
+import org.apache.guacamole.rest.jsonpatch.APIPatchResponse;
 
 /**
  * A REST resource which abstracts the operations available on all Guacamole
@@ -342,6 +355,30 @@ public abstract class DirectoryResource<InternalType extends Identifiable, Exter
     }
 
     /**
+     * Filter and sanitize the provided external object, translate to the
+     * internal type, and return the translated internal object.
+     *
+     * @param object
+     *     The external object to filter and translate.
+     *
+     * @return
+     *     The filtered and translated internal object.
+     *
+     * @throws GuacamoleException
+     *     If an error occurs while filtering or translating the external
+     *     object.
+     */
+    private InternalType filterAndTranslate(ExternalType object)
+            throws GuacamoleException {
+
+        // Filter and sanitize the external object
+        translator.filterExternalObject(userContext, object);
+
+        // Translate to the internal type
+        return translator.toInternalObject(object);
+    }
+
+    /**
      * Returns a map of all objects available within this DirectoryResource,
      * filtering the returned map by the given permission, if specified.
      *
@@ -385,47 +422,380 @@ public abstract class DirectoryResource<InternalType extends Identifiable, Exter
     }
 
     /**
+     * Retrieve and return the object having the given identifier from the
+     * directory, throwing a GuacamoleResourceNotFoundException and firing a
+     * directory GET failure event if no object exists with the given identifier
+     * in the directory.
+     *
+     * @param identifier
+     *     The identifier of the object to retrieve from the directory.
+     *
+     * @param directory
+     *     The directory to fetch the object from. If null, the directory
+     *     associated with this DirectoryResource instance will be used.
+     *
+     * @return
+     *     The object from the directory with the provided identifier.
+     *
+     * @throws GuacamoleException
+     *     If no object with the provided identifier exists within the
+     *     directory, or if any other error occurs while attempting to retrieve
+     *     the object.
+     */
+    @Nonnull
+    private InternalType getObjectByIdentifier(
+            String identifier, @Nullable Directory<InternalType> directory)
+            throws GuacamoleException {
+
+        // Use the directory associated with this instance if not otherwise
+        // specified
+        if (directory == null)
+            directory = this.directory;
+
+        // Retrieve the object having the given identifier
+        InternalType object;
+        try {
+            object = directory.get(identifier);
+            if (object == null)
+                throw new GuacamoleResourceNotFoundException(
+                        "Not found: \"" + identifier + "\"");
+        }
+        catch (GuacamoleException | RuntimeException | Error e) {
+            fireDirectoryFailureEvent(
+                    DirectoryEvent.Operation.GET, identifier, null, e);
+            throw e;
+        }
+
+        // Return the object; it is guaranteed to be non-null at this point
+        return object;
+    }
+
+    /**
+     * If the provided throwable is a known Guacamole-specific type, create and
+     * return a APIPatchError with an error message extracted from the error.
+     * If the provided throwable is not a known type, null will be returned.
+     *
+     * @param op
+     *     The operation being attempted when the error occurred.
+     *
+     * @param identifier
+     *     The identifier of the object in question, if any.
+     *
+     * @param path
+     *     The path for the patch that was being applied when the error occurred.
+     *
+     * @param t
+     *     The error that occurred while attempting to apply the patch.
+     *
+     * @return
+     *     A APIPatchError with an error message extracted from the provided
+     *     throwable - if it's a known type, otherwise null.
+     */
+    @Nullable
+    private APIPatchError createPatchFailure(
+            @Nonnull APIPatch.Operation op, @Nullable String identifier,
+            @Nonnull String path, @Nonnull Throwable t) {
+
+        /*
+         * If the failure is a translatable type, use the translation directly
+         * in the patch error.
+         */
+        if (t instanceof Translatable)
+            return new APIPatchError(
+                op, identifier, path,
+                ((Translatable) t).getTranslatableMessage());
+
+        /*
+         * If the failure represents a known Guacamole exception but is not
+         * translateable, create a patch error containing the raw untranslated
+         * exception message.
+         */
+        if (t instanceof GuacamoleException) {
+
+            // Create a translated message that will fall
+            // through to the untranslated message
+            TranslatableMessage message = new TranslatableMessage(
+                    "APP.TEXT_UNTRANSLATED", Collections.singletonMap(
+                            "MESSAGE", ((GuacamoleException) t).getMessage()));
+
+            return new APIPatchError(op, identifier, path, message);
+        }
+
+        // The error is not a known type - no patch error can be generated
+        return null;
+    }
+
+    /**
      * Applies the given object patches, updating the underlying directory
-     * accordingly. This operation currently only supports deletion of objects
-     * through the "remove" patch operation. The path of each patch operation is
-     * of the form "/ID" where ID is the identifier of the object being
-     * modified.
+     * accordingly. This operation supports addition, replacement, and removal of
+     * objects through the "add", "replace", or "remove" patch operations. The
+     * path of each patch operation is of the form "/ID" where ID is the 
+     * identifier of the object being modified. In the case of object creation, 
+     * the identifier is ignored, as the identifier will be automatically 
+     * provided. This operation is atomic.
      *
      * @param patches
      *     The patches to apply for this request.
      *
      * @throws GuacamoleException
-     *     If an error occurs while deleting the objects.
+     *     If an error occurs while adding, replacing, or removing objects.
+     *
+     * @return
+     *     A response describing the outcome of each patch. Only the identifier
+     *     of each patched object will be included in the response, not the
+     *     full object.
      */
     @PATCH
-    public void patchObjects(List<APIPatch<String>> patches)
+    public APIPatchResponse patchObjects(List<APIPatch<ExternalType>> patches)
             throws GuacamoleException {
 
-        // Apply each operation specified within the patch
-        for (APIPatch<String> patch : patches) {
+        // An outcome for each patch included in the request. This list
+        // may include both success and failure responses, though the
+        // presence of any failure would indicated that the entire
+        // request has failed and no changes have been made.
+        List<APIPatchOutcome> patchOutcomes = new ArrayList<>();
 
-            // Only remove is supported
-            if (patch.getOp() != APIPatch.Operation.remove)
-                throw new GuacamoleUnsupportedException("Only the \"remove\" "
-                        + "operation is supported.");
+        // Perform all requested operations atomically
+        directory.tryAtomically(new AtomicDirectoryOperation<InternalType>() {
 
-            // Retrieve and validate path
-            String path = patch.getPath();
-            if (!path.startsWith("/"))
-                throw new GuacamoleClientException("Patch paths must start with \"/\".");
+            @Override
+            public void executeOperation(boolean atomic, Directory<InternalType> directory)
+                    throws GuacamoleException {
 
-            // Remove specified object
-            String identifier = path.substring(1);
-            try {
-                directory.remove(identifier);
-                fireDirectorySuccessEvent(DirectoryEvent.Operation.REMOVE, identifier, null);
+                // If the underlying directory implentation does not support
+                // atomic operations, abort the patch operation. This REST
+                // endpoint requires that operations be performed atomically.
+                if (!atomic)
+                    throw new GuacamoleUnsupportedException(
+                            "The extension providing this directory does not " +
+                            "support Atomic Operations. The patch cannot be " +
+                            "executed.");
+
+                // Keep a list of all objects that have been successfully
+                // added, replaced, or removed
+                Collection<InternalType> addedObjects = new ArrayList<>();
+                Collection<InternalType> replacedObjects = new ArrayList<>();
+                Collection<String> removedIdentifiers = new ArrayList<>();
+
+                // A list of all responses associated with the successful
+                // creation of new objects
+                List<APIPatchOutcome> creationSuccesses = new ArrayList<>();
+
+                // True if any operation in the patch failed. Any failure will
+                // fail the request, though won't result in immediate stoppage
+                // since more errors may yet be uncovered.
+                boolean failed = false;
+
+                // Apply each operation specified within the patch
+                for (APIPatch<ExternalType> patch : patches) {
+
+                    // Retrieve and validate path
+                    String path = patch.getPath();
+                    if (!path.startsWith("/"))
+                        throw new GuacamoleClientException("Patch paths must start with \"/\".");
+
+                    APIPatch.Operation op = patch.getOp();
+
+                    if (op == APIPatch.Operation.add) {
+
+                        // Filter/sanitize object contents
+                        InternalType internal = filterAndTranslate(patch.getValue());
+
+                        try {
+
+                            // Attempt to add the new object
+                            directory.add(internal);
+
+                            // Add the object to the list if addition was successful
+                            addedObjects.add(internal);
+
+                            // Add a success outcome describing the object creation
+                            APIPatchOutcome response = new APIPatchOutcome(
+                                    op, internal.getIdentifier(), path);
+                            patchOutcomes.add(response);
+                            creationSuccesses.add(response);
+
+                        }
+
+                        catch (GuacamoleException | RuntimeException | Error e) {
+                            failed = true;
+                            fireDirectoryFailureEvent(
+                                    DirectoryEvent.Operation.ADD,
+                                    internal.getIdentifier(), internal, e);
+
+                            // Attempt to generate an API Patch error using the
+                            // caught exception
+                            APIPatchError patchError = createPatchFailure(
+                                    op, null, path, e);
+
+                            if (patchError != null)
+                                patchOutcomes.add(patchError);
+
+                            // If an unexpected failure occurs, fall through to
+                            // the standard API error handling
+                            else
+                                throw e;
+
+                        }
+
+                    }
+
+                    else if (op == APIPatch.Operation.replace) {
+
+                        // The identifier of the object to be replaced
+                        String identifier = path.substring(1);
+
+                        InternalType original = null;
+
+                        try {
+
+                            // Fetch the object to be updated from the atomic
+                            // directory instance. If no object is found, a 
+                            // directory GET failure event will be logged, and
+                            // the update attempt will be aborted.
+                            original = getObjectByIdentifier(identifier, directory);
+                            
+                            // Apply the changes to the original object
+                            translator.applyExternalChanges(
+                                    original, patch.getValue());
+
+                            // Update the directory
+                            directory.update(original);
+
+                            replacedObjects.add(original);
+
+                            // Add a success outcome describing the replacement
+                            APIPatchOutcome response = new APIPatchOutcome(
+                                    op, identifier, path);
+                            patchOutcomes.add(response);
+                            
+                        }
+
+                        catch (GuacamoleException | RuntimeException | Error e) {
+                            failed = true;
+                            fireDirectoryFailureEvent(
+                                    DirectoryEvent.Operation.UPDATE,
+                                    identifier, original, e);
+
+                            // Attempt to generate an API Patch error using the
+                            // caught exception
+                            APIPatchError patchError = createPatchFailure(
+                                    op, identifier, path, e);
+
+                            if (patchError != null)
+                                patchOutcomes.add(patchError);
+
+                            // If an unexpected failure occurs, fall through to
+                            // the standard API error handling
+                            else
+                                throw e;
+
+                        }
+                    }
+
+                    else if (op == APIPatch.Operation.remove) {
+
+                        String identifier = path.substring(1);
+
+                        try {
+
+                            // Attempt to remove the object
+                            directory.remove(identifier);
+
+                            // Add the object to the list if the removal was successful
+                            removedIdentifiers.add(identifier);
+
+                            // Add a success outcome describing the object removal
+                            APIPatchOutcome response = new APIPatchOutcome(
+                                    op, identifier, path);
+                            patchOutcomes.add(response);
+                            creationSuccesses.add(response);
+                        }
+                        catch (GuacamoleException | RuntimeException | Error e) {
+                            failed = true;
+                            fireDirectoryFailureEvent(
+                                    DirectoryEvent.Operation.REMOVE,
+                                    identifier, null, e);
+
+                            // Attempt to generate an API Patch error using the
+                            // caught exception
+                            APIPatchError patchError = createPatchFailure(
+                                    op, identifier, path, e);
+
+                            if (patchError != null)
+                                patchOutcomes.add(patchError);
+
+                            // If an unexpected failure occurs, fall through to
+                            // the standard API error handling
+                            else
+                                throw e;
+                        }
+                    }
+                    
+                    else {
+                        throw new GuacamoleUnsupportedException(
+                                "Unsupported patch operation \"" + op + "\". "
+                                + "Only add, replace, and remove are supported.");
+                    }
+
+
+                }
+
+                // If any operation failed
+                if (failed) {
+
+                    // Any identifiers for objects created during this request
+                    // will no longer be valid, since the creation of those
+                    // objects will be rolled back.
+                    creationSuccesses.forEach(
+                            response -> response.clearIdentifier());
+
+                    // Return an error response, including any failures that
+                    // caused the failure of any patch in the request
+                    throw new APIPatchFailureException(
+                            "The provided patches failed to apply.", patchOutcomes);
+
+                }
+
+                // Fire directory success events for each created object
+                Iterator<InternalType> addedIterator = addedObjects.iterator();
+                while (addedIterator.hasNext()) {
+
+                    InternalType internal = addedIterator.next();
+                    fireDirectorySuccessEvent(
+                            DirectoryEvent.Operation.ADD,
+                            internal.getIdentifier(), internal);
+
+                }
+
+                // Fire directory success events for each updated object
+                Iterator<InternalType> updatedIterator = replacedObjects.iterator();
+                while (updatedIterator.hasNext()) {
+
+                    InternalType internal = updatedIterator.next();
+                    fireDirectorySuccessEvent(
+                            DirectoryEvent.Operation.UPDATE,
+                            internal.getIdentifier(), internal);
+
+                }
+
+                // Fire directory success events for each removed object
+                Iterator<String> removedIterator = removedIdentifiers.iterator();
+                while (removedIterator.hasNext()) {
+
+                    String identifier = removedIterator.next();
+                    fireDirectorySuccessEvent(
+                            DirectoryEvent.Operation.REMOVE,
+                            identifier, null);
+
+                }
+
             }
-            catch (GuacamoleException | RuntimeException | Error e) {
-                fireDirectoryFailureEvent(DirectoryEvent.Operation.REMOVE, identifier, null, e);
-                throw e;
-            }
 
-        }
+        });
+
+        // Return a list of outcomes, one for each patch in the request
+        return new APIPatchResponse(patchOutcomes);
 
     }
 
@@ -453,8 +823,7 @@ public abstract class DirectoryResource<InternalType extends Identifiable, Exter
             throw new GuacamoleClientException("Data must be submitted when creating objects.");
 
         // Filter/sanitize object contents
-        translator.filterExternalObject(userContext, object);
-        InternalType internal = translator.toInternalObject(object);
+        InternalType internal = filterAndTranslate(object);
 
         // Create the new object within the directory
         try {
@@ -488,17 +857,10 @@ public abstract class DirectoryResource<InternalType extends Identifiable, Exter
         getObjectResource(@PathParam("identifier") String identifier)
             throws GuacamoleException {
 
-        // Retrieve the object having the given identifier
-        InternalType object;
-        try {
-            object = directory.get(identifier);
-            if (object == null)
-                throw new GuacamoleResourceNotFoundException("Not found: \"" + identifier + "\"");
-        }
-        catch (GuacamoleException | RuntimeException | Error e) {
-            fireDirectoryFailureEvent(DirectoryEvent.Operation.GET, identifier, null, e);
-            throw e;
-        }
+        // Fetch the object to be updated. If no object is found, a directory
+        // GET failure event will be logged. If no exception is thrown, the
+        // object is guaranteed to exist
+        InternalType object = getObjectByIdentifier(identifier, null);
 
         // Return a resource which provides access to the retrieved object
         DirectoryObjectResource<InternalType, ExternalType> resource = resourceFactory.create(authenticatedUser, userContext, directory, object);
