@@ -96,6 +96,16 @@ angular.module('login').directive('guacLogin', [function guacLogin() {
         $scope.loginError = null;
 
         /**
+         * Show/Hide the banner
+         */
+        $scope.showBanner = true;
+
+        /**
+         * Show/Hide the chat window
+         */
+        $scope.showChatWindow = false;
+
+        /**
          * All form values entered by the user, as parameter name/value pairs.
          *
          * @type Object.<String, String>
@@ -246,8 +256,21 @@ angular.module('login').directive('guacLogin', [function guacLogin() {
         $rootScope.$on('$routeChangeSuccess', function routeChanged() {
             $scope.enteredValues = {};
             $scope.submitted = false;
+            
         });
 
+        if (sessionStorage.getItem('showBanner') == 'false') {
+            $scope.showBanner = false;
+        }
+
+        $scope.closeButton = function () {
+            sessionStorage.setItem('showBanner', 'false');
+            $scope.showBanner = false;
+        }
+
+        $scope.showChat = function () {
+            $rootScope.showChatWindow = true;
+        }
     }];
 
     return directive;

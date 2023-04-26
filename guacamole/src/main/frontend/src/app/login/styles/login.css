@@ -43,7 +43,7 @@ div.login-ui {
     padding: 1em;
     margin: 0.2em;
 
-    background: ##777d8c;
+    background: #777d8c;
     border: 1px solid #fff;
     -moz-border-radius: 0.25em;
     -webkit-border-radius: 0.25em;
@@ -82,5 +82,5 @@ div.login-ui {
 }
 
 .login-ui .login-fields .labeled-field input:focus {
-    background: white;
+    background: transparent;
 }

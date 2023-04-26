@@ -1,26 +1,22 @@
-<div class="login-ui" ng-class="{error: loginError, continuation: isContinuation(), initial: !isContinuation()}" >
+<div class="login-ui" ng-class="{error: loginError, continuation: isContinuation(), initial: !isContinuation()}">
 
     <!-- Login error message -->
-    <p class="login-error" translate="{{loginError.key}}"
-       translate-values="{{loginError.variables}}"></p>
+    <p class="login-error" translate="{{loginError.key}}" translate-values="{{loginError.variables}}"></p>
 
     <div class="login-dialog-middle">
-	<div class="cookie-banner" style="">
-	<p class="cookie-text">
-		<a>Need help? Our Support staff are available to assist you 24/7! Chat Support at the bottom right or Phone Support at (866) 847-3590.</a>
-		<button id="closeButton" class="close" style="float: right;">X</button>
-	</p>		
-</div>
+        <div class="cookie-banner" ng-if="showBanner">
+            <p class="cookie-text">
+                <a>Need help? Our Support staff are available to assist you 24/7! Chat Support at the bottom right or
+                    Phone Support at (866) 847-3590.</a>
+                <button id="closeButton" class="close" style="float: right;" ng-click="closeButton()">X</button>
+            </p>
+        </div>
 
-<script>
-	document.getElementById('closeButton').addEventListener('click', function() {
-		document.querySelector('.cookie-banner').style.display = 'none';
-	});
-</script>
-	<div class="logo" style="margin-left: auto;margin-right: auto;width: 50%;">
-		<img alt="ICANotes" src="https://www.icanotes.com/wp-content/uploads/2017/09/ICANotes_logo250w.png">
-	</div>
-    	<div class="login-dialog notification" style="background-color: #777D8C;border-radius: 5px;">
+
+        <div class="logo" style="margin-left: auto;margin-right: auto;width: 50%;">
+            <img alt="ICANotes" src="https://www.icanotes.com/wp-content/uploads/2017/09/ICANotes_logo250w.png">
+        </div>
+        <div class="login-dialog notification" style="background-color: #777D8C;border-radius: 5px;">
 
             <form class="login-form" ng-submit="login()">
 
@@ -29,46 +25,95 @@
                 </div>
 
                 <!-- Login message/instructions -->
-                <p ng-show="helpText" translate="{{helpText.key}}"
-                   translate-values="{{helpText.variables}}"></p>
+                <p ng-show="helpText" translate="{{helpText.key}}" translate-values="{{helpText.variables}}"></p>
 
                 <!-- Login fields -->
                 <div class="login-fields">
-                    <guac-form
-                        namespace="'LOGIN'"
-                        content="remainingFields"
-                        model="enteredValues"
-                        focused="relevantField.name"
-                        data-disabled="submitted"></guac-form>
+                    <guac-form namespace="'LOGIN'" content="remainingFields" model="enteredValues"
+                        focused="relevantField.name" data-disabled="submitted"></guac-form>
                 </div>
 
                 <!-- Login/continue button -->
                 <div class="buttons">
 
-                    <input type="submit" name="login" class="login"
-                           ng-disabled="submitted"
-                           value="{{'LOGIN.ACTION_LOGIN' | translate}}" style="height: auto;">
+                    <input type="submit" name="login" class="login" ng-disabled="submitted"
+                        value="{{'LOGIN.ACTION_LOGIN' | translate}}" style="height: auto;">
 
-                    <input type="submit" name="login" class="continue-login"
-                           ng-disabled="submitted"
-                           value="{{'LOGIN.ACTION_CONTINUE' | translate}}">
+                    <input type="submit" name="login" class="continue-login" ng-disabled="submitted"
+                        value="{{'LOGIN.ACTION_CONTINUE' | translate}}">
 
                 </div>
                 <div style="text-align:center;">
-						<br>
-						<a style="text-decoration:none; color:White;" href="https://upload.icanotes.com/home/forgotpassword" target="_blank">Forgot your password?
-						</a>
-					</div>
                     <br>
+                    <a style="text-decoration:none; color:White;" href="https://upload.icanotes.com/home/forgotpassword"
+                        target="_blank">Forgot your password?
+                    </a>
+                </div>
+                <br>
                 <div style="text-align:center;">
-                  <iframe src="https://icanotes.instatus.com/embed-status/a9b7581b/light-md" width="230" height="41" frameborder="0" scrolling="no" style="border: none display:">
-					</iframe>
+                    <iframe src="https://icanotes.instatus.com/embed-status/a9b7581b/light-md" width="250" height="49"
+                        frameborder="0" scrolling="no" style="border: none;">
+                    </iframe>
                 </div>
 
             </form>
 
         </div>
 
+        <div style="display: flex; justify-content: center;">
+            <a href="#" id="telehealth" class="new-buttons">
+                Telehealth
+            </a>
+            <a href="#" id="patientportal" class="new-buttons">
+                Patient Portal
+            </a>
+            <a href="#" id="uploadtoicanotes" class="new-buttons">
+                Upload to ICANotes
+            </a>
+        </div>
+        <div style="display: flex; justify-content: center;">
+            <a href="#" id="knowledgebase" class="new-buttons">
+                Knowledge Base
+            </a>
+            <a href="#" id="training" class="new-buttons">
+                Training
+            </a>
+            <a href="#" id="submitaticket" class="new-buttons">
+                Submit a Ticket
+            </a>
+            <a href="#" id="remotesupport" class="new-buttons">
+                Remote Support
+            </a>
+        </div>
     </div>
+
+    <div class="chatwindow" id="chatwindow">
+        <button type="button" ng-click="showChat()">
+            <svg viewBox="0 0 600 600">
+                <defs>
+                    <filter id="dropshadow" height="140%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="15"></feGaussianBlur>
+                        <feOffset result="offsetblur" dx="10" dy="10"></feOffset>
+                        <feComponentTransfer>
+                            <feFuncA type="linear" slope="0.8"></feFuncA>
+                        </feComponentTransfer>
+                        <feMerge>
+                            <feMergeNode></feMergeNode>
+                            <feMergeNode in="SourceGraphic"></feMergeNode>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <g id="comments" class="designstudio-container">
+                    <circle class="designstudio-circle" cx="50%" cy="50%" r="260" fill="#ff9900" linejoin="round"
+                        stroke="#ff9900" stroke-width="0" fill-opacity="1" position="absolute"></circle>
+                    <path class="designstudio-icon" fill="#ffffff"
+                        d="M1408 768q0 -139 -94 -257t-256.5 -186.5t-353.5 -68.5q-86 0 -176 16q-124 -88 -278 -128q-36 -9 -86 -16h-3q-11 0 -20.5 8t-11.5 21q-1 3 -1 6.5t0.5 6.5t2 6l2.5 5t3.5 5.5t4 5t4.5 5t4 4.5q5 6 23 25t26 29.5t22.5 29t25 38.5t20.5 44q-124 72 -195 177t-71 224 q0 139 94 257t256.5 186.5t353.5 68.5t353.5 -68.5t256.5 -186.5t94 -257zM1792 512q0 -120 -71 -224.5t-195 -176.5q10 -24 20.5 -44t25 -38.5t22.5 -29t26 -29.5t23 -25q1 -1 4 -4.5t4.5 -5t4 -5t3.5 -5.5l2.5 -5t2 -6t0.5 -6.5t-1 -6.5q-3 -14 -13 -22t-22 -7 q-50 7 -86 16q-154 40 -278 128q-90 -16 -176 -16q-271 0 -472 132q58 -4 88 -4q161 0 309 45t264 129q125 92 192 212t67 254q0 77 -23 152q129 -71 204 -178t75 -230z"
+                        transform="scale(.195, -.195) translate(600, -2000)"></path>
+                </g>
+            </svg>
+        </button>
+
+    </div>
+    <chat-window ng-if="$root.showChatWindow"/>
 
 </div>
