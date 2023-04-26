@@ -37,6 +37,8 @@
     text-align: -webkit-center;
     padding: 1em;
     font-size: 1.25em;
+    border: none;
+    margin-bottom: 2rem;
 
     display: inline-block;
 }
@@ -125,4 +127,45 @@
     -webkit-animation-name: shake-head;
     -webkit-animation-duration: 0.25s;
     -webkit-animation-timing-function: linear;
+}
+
+.login-ui .new-buttons {
+    border: 1px solid #124D6A; 
+    border-radius: 5px; 
+    padding: 10px 30px 10px 30px; 
+    margin: 10px;
+    font-weight: bold;
+    background-color: #F9F9F9;
+    color: #124D6A;
+    text-decoration: none;
+    transition: 1s;
+    opacity: 1;
+}
+
+.login-ui .new-buttons:hover {
+    cursor: pointer;
+    background-color: #196D96;
+    opacity: 1;
+    transition: 0.3s;
+    color: #FFFFFF;
+}
+
+.login-ui .chatwindow {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+
+.login-ui .chatwindow button {
+    margin: 0px;
+    padding: 0px;
+    border: none;
+    box-shadow: none;
+    width: 80px;
+    cursor: pointer;
+}
+
+.login-ui .chatwindow button:hover {
+    box-shadow: none;
+    background-color: transparent;
 }

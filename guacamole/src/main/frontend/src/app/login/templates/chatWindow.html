@@ -1,0 +1,80 @@
+<div id="messagebox">
+    <div id="draggable">
+        <div id="draggable2">
+
+            <div id="mC">
+                <div id="mCH">
+                    <div class="comments">
+                        <svg style="height: 100%;" viewBox="90 100 375 375">
+                            <g id="comments">
+                                <path class="designstudio-icon" fill="#000"
+                                    d="M1408 768q0 -139 -94 -257t-256.5 -186.5t-353.5 -68.5q-86 0 -176 16q-124 -88 -278 -128q-36 -9 -86 -16h-3q-11 0 -20.5 8t-11.5 21q-1 3 -1 6.5t0.5 6.5t2 6l2.5 5t3.5 5.5t4 5t4.5 5t4 4.5q5 6 23 25t26 29.5t22.5 29t25 38.5t20.5 44q-124 72 -195 177t-71 224 q0 139 94 257t256.5 186.5t353.5 68.5t353.5 -68.5t256.5 -186.5t94 -257zM1792 512q0 -120 -71 -224.5t-195 -176.5q10 -24 20.5 -44t25 -38.5t22.5 -29t26 -29.5t23 -25q1 -1 4 -4.5t4.5 -5t4 -5t3.5 -5.5l2.5 -5t2 -6t0.5 -6.5t-1 -6.5q-3 -14 -13 -22t-22 -7 q-50 7 -86 16q-154 40 -278 128q-90 -16 -176 -16q-271 0 -472 132q58 -4 88 -4q161 0 309 45t264 129q125 92 192 212t67 254q0 77 -23 152q129 -71 204 -178t75 -230z"
+                                    transform="scale(.195, -.195) translate(600, -2000)"></path>
+                            </g>
+                        </svg>
+                    </div>
+                    <h2>ICANotes Support</h2>
+                    <div class="icon-close" ng-click="closeChat()">
+                        <svg viewBox="90 100 375 375">
+                            <g id="close_thin">
+                                <path class="designstudio-icon" fill="#000"
+                                    d="M1778.3 76.8 1716.2 14.7 896.5 834.4 76.8 14.7 14.7 76.8 834.4 896.5 14.7 1716.2 76.8 1778.3 896.5 958.6 1716.2 1778.3 1778.3 1716.2 958.6 896.5z"
+                                    transform="scale(.215, -.215) translate(400, -2300)"></path>
+                            </g>
+                        </svg>
+                    </div>
+                    <!--       <button id="leaveRoom" type="button" onclick= "leaveRoom()">Leave Room</button> -->
+                </div>
+
+                <div id="message-container">
+                    <div class="contact">
+                        <div>
+                            <label for="email">
+                                Email
+                                <span class="required-symbol">*</span>
+                            </label>
+                            <input type="email" name="email" id="email" placeholder="Enter your email address" required>
+                        </div>
+                        <div>
+                            <label for="email">
+                                ICANotes Username
+                            </label>
+                            <input type="text" name="ICANotesUsername" id="ICANotesUsername"
+                                placeholder="What is your ICANotes username?">
+                        </div>
+                    </div>
+                    <div id="messageOutput">
+                        <figure>
+                            <img src="https://www.snapengage.com/avatar/serve?id=5241670803324928" alt="mm" />
+                        </figure>
+                        <div id="messageOCH">
+                            <header>
+                                <h4>Username <time>10:28pm</time></h4>
+                            </header>
+                            <p>stuff is said in here muhahahahaha</p>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="text" id="message" placeholder="Enter message">
+                        <button type="button" id="msend" onclick="sendMessage()">
+                            <svg style="height: 20px; width: 20px; margin: 7px;" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 512 512"><!-- Font Awesome Pro 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) -->
+                                <path
+                                    d="M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="chat-footer">
+                    <button type="button" id="mstartchat" onclick="startChat()">Start Chat</button>
+                    <div id="logo">
+                        <img alt="logo" class="logo left"
+                            src="https://storage.googleapis.com/code.snapengage.com/cd/5996549450301440/1673908855458.png">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
