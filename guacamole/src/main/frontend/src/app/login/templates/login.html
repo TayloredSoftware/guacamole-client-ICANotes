@@ -114,6 +114,27 @@
         </button>
 
     </div>
+    <div class="grid-container" ng-if="showHide">
+        <div class="grid-item-purple">
+            <div class="bigmarkerArea" id="bigmarker-channel-widget-containericanotes">
+                <div class="bigmarker-widget-out-box" id="bw-preview-club" style="max-width: 320px; height: 330px;">
+                    <div class="bigmarker-widget-box" style="background-color: #fff;">
+                        <div class="bigmarker-widget-title custom_text_color" style="text-align: center;">
+                            Upcoming Webinars        
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+            <script src="https://www.bigmarker.com/widget/register_channel_widget.js?club=icanotes&amp;widget_type=automatically_list&amp;upcoming_sub_title=&amp;background_color=ffffff&amp;btext_color=4c586e&amp;link_color=1089f5&amp;ltext_color=ffffff&amp;show_public_webinar=false&amp;widget_width=&amp;widget_height=&amp;enable_iframe=false&amp;cid=bb65d0a94958" type="text/javascript"></script>
+        </div>
+        <div class="grid-item-green">
+            <div class="bigmarkerArea">
+                <iframe allow="encrypted-media" allowfullscreen="allowfullscreen" frameborder="0" height="510px" width="320px" src="https://www.bigmarker.com/widget/register_widget?club=icanotes1&amp;conference=add291190d25&amp;widget_type=image_register&amp;series_register=&amp;upcoming_sub_title=&amp;live_sub_title=&amp;rec_sub_title=&amp;upcoming_button_text=&amp;live_button_text=&amp;rec_button_text=&amp;link_to_channel=false&amp;widget_width=&amp;widget_height=&amp;enable_iframe=true&amp;background_color=ffffff&amp;btext_color=2d374d&amp;link_color=1089f5&amp;ltext_color=ffffff&amp;redirect_to_confirmation_page=0&amp;widget_button_registered_content=&amp;widget_webinar_descriptions=&amp;widget_redirect_type=no_redirect&amp;cid=1855f9a0b686&amp;load_iframe=true"></iframe>
+            </div>
+            <script src="https://www.bigmarker.com/widget/register_widget.js?club=icanotes1&amp;conference=add291190d25&amp;widget_type=image_register&amp;series_register=&amp;upcoming_sub_title=&amp;live_sub_title=&amp;rec_sub_title=&amp;upcoming_button_text=&amp;live_button_text=&amp;rec_button_text=&amp;link_to_channel=false&amp;widget_width=&amp;widget_height=&amp;enable_iframe=true&amp;background_color=ffffff&amp;btext_color=2d374d&amp;link_color=1089f5&amp;ltext_color=ffffff&amp;redirect_to_confirmation_page=0&amp;widget_button_registered_content=&amp;widget_webinar_descriptions=&amp;widget_redirect_type=no_redirect&amp;cid=1855f9a0b686" type="text/javascript"></script>
+        </div>
+    </div>
+    <button class="showHideButton" id="showHideButton" ng-click="showHideButton()">{{btnStr}}</button>
     <chat-window ng-if="$root.showChatWindow"/>
 
 </div>
