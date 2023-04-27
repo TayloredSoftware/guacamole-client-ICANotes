@@ -16,6 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+ ::placeholder {
+  color: #000;
+  opacity: 1;
+ }
   
 #messagebox label {
     color: #000;
@@ -36,7 +41,7 @@
   } */
   
   #draggable {
-      position: absolute;
+      position: fixed;
       bottom: 5px;
       right: 5px;
       z-index: 9;

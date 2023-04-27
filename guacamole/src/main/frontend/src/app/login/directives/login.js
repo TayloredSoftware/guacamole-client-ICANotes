@@ -106,6 +106,12 @@ angular.module('login').directive('guacLogin', [function guacLogin() {
         $scope.showChatWindow = false;
 
         /**
+         * Show/Hide webinar, Button String
+         */
+        $scope.showHide = true;
+        $scope.btnStr = "-";
+
+        /**
          * All form values entered by the user, as parameter name/value pairs.
          *
          * @type Object.<String, String>
@@ -270,6 +276,12 @@ angular.module('login').directive('guacLogin', [function guacLogin() {
 
         $scope.showChat = function () {
             $rootScope.showChatWindow = true;
+        }
+
+        $scope.showHideButton = function () {
+            $scope.showHide = !$scope.showHide;
+            if($scope.showHide) $scope.btnStr = "-";
+            else $scope.btnStr = "+";
         }
     }];
 
