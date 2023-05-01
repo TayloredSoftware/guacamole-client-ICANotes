@@ -225,7 +225,7 @@ angular.module('client').factory('ManagedFilesystem', ['$rootScope', '$injector'
             var filename = path.match(/(.*[\\/])?(.*)/)[2];
 
             // Start download
-            tunnelService.downloadStream(managedFilesystem.client.tunnel.uuid, stream, mimetype, filename);
+            tunnelService.printStream(managedFilesystem.client.tunnel.uuid, stream, mimetype, filename);
 
         });
 

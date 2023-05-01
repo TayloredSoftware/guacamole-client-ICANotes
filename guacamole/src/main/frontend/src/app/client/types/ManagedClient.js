@@ -635,7 +635,7 @@ angular.module('client').factory('ManagedClient', ['$rootScope', '$injector',
 
         // Handle any received files
         client.onfile = function clientFileReceived(stream, mimetype, filename) {
-            tunnelService.downloadStream(tunnel.uuid, stream, mimetype, filename);
+            tunnelService.printStream(tunnel.uuid, stream, mimetype, filename);
         };
 
         // Handle any received filesystem objects
