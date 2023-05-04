@@ -22,6 +22,7 @@
  * underlying objects) via the REST API.
  */
 angular.module('rest').factory('tunnelService', ['$injector',
+master
     function tunnelService($injector) {
 
         // Required types
@@ -79,6 +80,201 @@ angular.module('rest').factory('tunnelService', ['$injector',
                 method: 'GET',
                 url: 'api/session/tunnels'
             });
+        function tunnelService($injector) {
+
+    // Required types
+    var Error = $injector.get('Error');
+
+    // Required services
+    var $q                    = $injector.get('$q');
+    var $window               = $injector.get('$window');
+    var authenticationService = $injector.get('authenticationService');
+    var requestService        = $injector.get('requestService');
+
+    var service = {};
+
+    /**
+     * Reference to the window.document object.
+     *
+     * @private
+     * @type HTMLDocument
+     */
+    var document = $window.document;
+
+    /**
+     * The number of milliseconds to wait after a stream download has completed
+     * before cleaning up related DOM resources, if the browser does not
+     * otherwise notify us that cleanup is safe.
+     *
+     * @private
+     * @constant
+     * @type Number
+     */
+    var DOWNLOAD_CLEANUP_WAIT = 5000;
+
+    /**
+     * The maximum size a chunk may be during uploadToStream() in bytes.
+     * 
+     * @private
+     * @constant
+     * @type Number
+     */
+    const CHUNK_SIZE = 1024 * 1024 * 4;
+
+    /**
+     * Makes a request to the REST API to get the list of all tunnels
+     * associated with in-progress connections, returning a promise that
+     * provides an array of their UUIDs (strings) if successful.
+     *
+     * @returns {Promise.<String[]>>}
+     *     A promise which will resolve with an array of UUID strings, uniquely
+     *     identifying each active tunnel.
+     */
+    service.getTunnels = function getTunnels() {
+
+        // Retrieve tunnels
+        return authenticationService.request({
+            method  : 'GET',
+            url     : 'api/session/tunnels'
+        });
+
+    };
+
+    /**
+     * Makes a request to the REST API to retrieve the underlying protocol of
+     * the connection associated with a particular tunnel, returning a promise
+     * that provides a @link{Protocol} object if successful.
+     *
+     * @param {String} tunnel
+     *     The UUID of the tunnel associated with the Guacamole connection
+     *     whose underlying protocol is being retrieved.
+     *
+     * @returns {Promise.<Protocol>}
+     *     A promise which will resolve with a @link{Protocol} object upon
+     *     success.
+     */
+    service.getProtocol = function getProtocol(tunnel) {
+
+        return authenticationService.request({
+            method  : 'GET',
+            url     : 'api/session/tunnels/' + encodeURIComponent(tunnel)
+                        + '/protocol'
+        });
+
+    };
+
+    /**
+     * Retrieves the set of sharing profiles that the current user can use to
+     * share the active connection of the given tunnel.
+     *
+     * @param {String} tunnel
+     *     The UUID of the tunnel associated with the Guacamole connection
+     *     whose sharing profiles are being retrieved.
+     *
+     * @returns {Promise.<Object.<String, SharingProfile>>}
+     *     A promise which will resolve with a map of @link{SharingProfile}
+     *     objects where each key is the identifier of the corresponding
+     *     sharing profile.
+     */
+    service.getSharingProfiles = function getSharingProfiles(tunnel) {
+
+        // Retrieve all associated sharing profiles
+        return authenticationService.request({
+            method  : 'GET',
+            url     : 'api/session/tunnels/' + encodeURIComponent(tunnel)
+                        + '/activeConnection/connection/sharingProfiles'
+        });
+
+    };
+
+    /**
+     * Makes a request to the REST API to generate credentials which have
+     * access strictly to the active connection associated with the given
+     * tunnel, using the restrictions defined by the given sharing profile,
+     * returning a promise that provides the resulting @link{UserCredentials}
+     * object if successful.
+     *
+     * @param {String} tunnel
+     *     The UUID of the tunnel associated with the Guacamole connection
+     *     being shared.
+     *
+     * @param {String} sharingProfile
+     *     The identifier of the connection object dictating the
+     *     semantics/restrictions which apply to the shared session.
+     *
+     * @returns {Promise.<UserCredentials>}
+     *     A promise which will resolve with a @link{UserCredentials} object
+     *     upon success.
+     */
+    service.getSharingCredentials = function getSharingCredentials(tunnel, sharingProfile) {
+
+        // Generate sharing credentials
+        return authenticationService.request({
+            method  : 'GET',
+            url     : 'api/session/tunnels/' + encodeURIComponent(tunnel)
+                        + '/activeConnection/sharingCredentials/'
+                        + encodeURIComponent(sharingProfile)
+        });
+
+    };
+
+    /**
+     * Sanitize a filename, replacing all URL path seperators with safe
+     * characters.
+     *
+     * @param {String} filename
+     *     An unsanitized filename that may need cleanup.
+     *
+     * @returns {String}
+     *     The sanitized filename.
+     */
+    var sanitizeFilename = function sanitizeFilename(filename) {
+        return filename.replace(/[\\\/]+/g, '_');
+    };
+
+    /**
+     * Makes a request to the REST API to retrieve the contents of a stream
+     * which has been created within the active Guacamole connection associated
+     * with the given tunnel. The contents of the stream will automatically be
+     * downloaded by the browser.
+     *
+     * WARNING: Like Guacamole's various reader implementations, this function
+     * relies on assigning an "onend" handler to the stream object for the sake
+     * of cleaning up resources after the stream closes. If the "onend" handler
+     * is overwritten after this function returns, resources may not be
+     * properly cleaned up.
+     *
+     * @param {String} tunnel
+     *     The UUID of the tunnel associated with the Guacamole connection
+     *     whose stream should be downloaded as a file.
+     *
+     * @param {Guacamole.InputStream} stream
+     *     The stream whose contents should be downloaded.
+     *
+     * @param {String} mimetype
+     *     The mimetype of the stream being downloaded. This is currently
+     *     ignored, with the download forced by using
+     *     "application/octet-stream".
+     *
+     * @param {String} filename
+     *     The filename that should be given to the downloaded file.
+     */
+    service.downloadStream = function downloadStream(tunnel, stream, mimetype, filename) {
+
+        // Work-around for IE missing window.location.origin
+        if (!$window.location.origin)
+            var streamOrigin = $window.location.protocol + '//' + $window.location.hostname + ($window.location.port ? (':' + $window.location.port) : '');
+        else
+            var streamOrigin = $window.location.origin;
+
+        // Build download URL
+        var url = streamOrigin
+                + $window.location.pathname
+                + 'api/session/tunnels/' + encodeURIComponent(tunnel)
+                + '/streams/' + encodeURIComponent(stream.index)
+                + '/' + encodeURIComponent(sanitizeFilename(filename))
+                + '?token=' + encodeURIComponent(authenticationService.getCurrentToken());
+ master
 
         };
 
