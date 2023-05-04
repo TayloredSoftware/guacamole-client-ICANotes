@@ -208,7 +208,7 @@ angular.module('rest').factory('tunnelService', ['$injector',
          * @param {String} filename
          *     The filename that should be given to the downloaded file.
          */
-        /*
+        
         service.downloadStream = function downloadStream(tunnel, stream, mimetype, filename) {
 
             // Work-around for IE missing window.location.origin
@@ -261,57 +261,9 @@ angular.module('rest').factory('tunnelService', ['$injector',
             // Begin download
             iframe.src = url;
 
-        };  */
-
-        /* @param { String } tunnel
-                * The UUID of the tunnel associated with the Guacamole connection
-                    * whose stream should be downloaded as a file.
-         *
-         * @param { Guacamole.InputStream } stream
-                * The stream whose contents should be downloaded.
-         *
-         * @param { String } mimetype
-                * The mimetype of the stream being downloaded.This is currently
-                    * ignored, with the download forced by using
-                        * "application/octet-stream".
-         *
-         * @param { String } filename
-                * The filename that should be given to the downloaded file.
-         */
-        service.printStream = function printStream(tunnel, stream, mimetype, filename) {
-            // Work-around for IE missing window.location.origin
-            if (!$window.location.origin)
-                var streamOrigin = $window.location.protocol + '//' + $window.location.hostname + ($window.location.port ? (':' + $window.location.port) : '');
-            else
-                var streamOrigin = $window.location.origin;
-            // Build download URL
-            var url = streamOrigin
-                + $window.location.pathname
-                + 'api/session/tunnels/' + encodeURIComponent(tunnel)
-                + '/streams/' + encodeURIComponent(stream.index)
-                + '/' + encodeURIComponent(sanitizeFilename(filename))
-                + '?token=' + encodeURIComponent(authenticationService.getCurrentToken())
-                + '&t=' + (new Date().getTime());
-            // Set true when trying to cancel printing, that is, when clicking close button on the progress dialog
-            var cancelPrint = false;
-            // Acknowledge (and ignore) any received blobs
-            stream.onblob = function acknowledgeData() {
-                if (cancelPrint) {
-                    stream.sendAck('STREAM CLOSED', Guacamole.Status.Code.SESSION_CLOSED);
-                } else {
-                    stream.sendAck('OK', Guacamole.Status.Code.SUCCESS);
-                }
-            };
-            // May use later
-            stream.onend = function downloadComplete() {
-            };
-            // Begin print
-            printJS({ printable: url, type: 'pdf', showModal: true });
-            // To cancel printing
-            function cancelPrinting() {
-                cancelPrint = true;
-            }
         };
+
+        
 
         /**
          * Makes a request to the REST API to send the contents of the given file
