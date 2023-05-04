@@ -34,7 +34,7 @@
 
     width: 100%;
     max-width: 7in;
-    text-align: -webkit-center;
+    text-align: center;
     padding: 1em;
     font-size: 1.25em;
     border: none;
@@ -50,7 +50,9 @@
 }
 
 .login-ui .login-dialog .buttons {
+    text-align: center;
     text-align: -webkit-center;
+    text-align: -moz-center;
     margin: 0;
     margin-top: 1em;
 }
