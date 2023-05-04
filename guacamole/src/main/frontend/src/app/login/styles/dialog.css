@@ -17,7 +17,7 @@
  * under the License.
  */
 
- .login-ui {
+.login-ui {
     animation: fadein 0.125s linear;
     -moz-animation: fadein 0.125s linear;
     -webkit-animation: fadein 0.125s linear;
@@ -35,6 +35,8 @@
     width: 100%;
     max-width: 7in;
     text-align: center;
+    text-align: -webkit-center;
+    text-align: -moz-center;
     padding: 1em;
     font-size: 1.25em;
     border: none;
@@ -51,8 +53,8 @@
 
 .login-ui .login-dialog .buttons {
     text-align: center;
-    text-align: -webkit-center;
     text-align: -moz-center;
+    text-align: -webkit-center;
     margin: 0;
     margin-top: 1em;
 }
