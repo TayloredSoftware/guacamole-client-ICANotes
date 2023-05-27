@@ -17,14 +17,16 @@
  * under the License.
  */
 
-var Guacamole = Guacamole || {};
+/* global Guacamole, expect */
 
-/**
- * The unique ID of this version of the Guacamole JavaScript API. This ID will
- * be the version string of the guacamole-common-js Maven project, and can be
- * used in downstream applications as a sanity check that the proper version
- * of the APIs is being used (in case an older version is cached, for example).
- *
- * @type {!string}
- */
-Guacamole.API_VERSION = "1.5.2";
+describe('Guacamole.SessionRecording', function() {
+
+    it('should create new SessionRecording instance from Blob', function() {
+
+        const blob = new Blob(['4.size,1.1,1.0,1.0;']);
+        const recording = new Guacamole.SessionRecording(blob);
+        expect(recording).not.toBeNull();
+
+    });
+
+});
