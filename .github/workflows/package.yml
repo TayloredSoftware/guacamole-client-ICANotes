@@ -1,7 +1,11 @@
-name: Java MVN Package WAR
+name: Package WAR
 
 on:
   workflow_dispatch:
+    inputs:
+      war_version:
+        description: 'version for war file'
+        default: '1.5.2'
   
 jobs:
   build:
@@ -22,6 +26,6 @@ jobs:
       - name: Archive WAR artifact
         uses: actions/upload-artifact@v3
         with:
-          name: guacamole-war-file
+          name: guacamole-${{ inputs.war_version }}.war
           path: |
             guacamole/target/*.war
